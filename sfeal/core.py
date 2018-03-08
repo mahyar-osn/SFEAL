@@ -13,6 +13,7 @@ class SSM(object):
         self.score_0 = None
         self.z_score = []
         self.ratio = {}
+        self.new_data = []
 
     def add_mesh(self, mesh, index = 0):
         mesh = morphic.Mesh(str(mesh))
@@ -98,7 +99,11 @@ class SSM(object):
             return x
         print 'Cannot reshape this node when generating pca mesh'
 
-    def calculate_score(self, mesh_file_names, mesh_file, save = False):
+    def calculate_score(self, mesh_file_names, mesh_file, save=False):
+        if not self.new_data:
+            pass
+        else:
+            self.new_data = []
         subject_name = mesh_file
         print '\n\t=========================================\n'
         print '\t   Please wait... \n'
@@ -133,14 +138,13 @@ class SSM(object):
             datasets.update({subjectStore[i]: i})
 
         count = len(pca_variance)
-        modeCount = []
+        mode_count = []
         for i in range(len(pca_variance)):
-            modeCount.append(i + 1)
+            mode_count.append(i + 1)
 
         print '\t   Total modes of variation = %d' % count
         print '\t   Projecting Subject: %s' % subject_name
         mode_scores = []
-        mah_dist = []
         for j in range(len(datasets)):
             mean = numpy.average(X[j], axis=0)
             subject = X[j] - pca_mean
@@ -154,6 +158,71 @@ class SSM(object):
         self.score_0 = numpy.dot(subject_0, pca_components)
         self.score_0 = self.score_0[0][0:count]
         self.score_z = self.convert_scores(self.score_0, self.SD, self.mean)
+
+        if save:
+            #### save scores to a csv file
+            import os
+            import csv
+            print '\n\t   ______________\n'
+            fname = raw_input('\t   PLEASE NAME YOUR FILE: ')
+            output_dir = 'output/'
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            weights_file = output_dir+'%s.csv' % fname
+
+            if os.path.isfile(weights_file):
+                text_file = open(weights_file, "a")
+                text_file.close()
+            else:
+                weights_file = output_dir+'%s.csv' % fname
+                text_file = open(weights_file, "a")
+                text_file.write("Mesh")
+                text_file.close()
+                for i in range(len(mode_count)):
+                    f = open(weights_file)
+                    data = [item for item in csv.reader(f)]
+                    f.close()
+                    new_column = mode_count
+                    self.new_data = []
+                    for j, item in enumerate(data):
+                        try:
+                            item.append(new_column[i])
+                        except IndexError, e:
+                            item.append("placeholder")
+                        self.new_data.append(item)
+                    f = open(weights_file, 'w')
+                    csv.writer(f).writerows(self.new_data)
+                    f.close()
+            if not self.new_data:
+                pass
+            else:
+                self.new_data = []
+
+            saving = True
+            if saving:
+                text_file = open(weights_file, "a")
+                text_file.write("%s" % subject_name)
+                text_file.close()
+                if os.path.isfile(weights_file):
+                    for i in range(len(mode_count)):
+                        f = open(weights_file)
+
+                        data_1 = [item for item in csv.reader(f)]
+                        f.close()
+                        self.new_data = []
+                        for j, item in enumerate(data_1):
+                            try:
+                                item.append("%.2f" % self.score_z[i])
+                            except IndexError, e:
+                                item.append("placeholder")
+                            self.new_data.append(item)
+                        # print self.new_data
+                        f = open(weights_file, 'w')
+                        csv.writer(f).writerows(self.new_data)
+                        f.close()
+                print "\t   Scores saved to %s \n" % weights_file
+                print '\t   ______________'
+
         return (self.score_z, self.ratio)
 
     def convert_scores(self, scores, SD, mean):
