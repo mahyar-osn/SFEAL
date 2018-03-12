@@ -13,6 +13,7 @@ class SSM(object):
         self.score_0 = None
         self.z_score = []
         self.ratio = {}
+        self.fname = None
         self.new_data = []
 
     def add_mesh(self, mesh, index = 0):
@@ -132,7 +133,8 @@ class SSM(object):
         pca_components = pca.components_.T
         pca_variance = pca.explained_variance_
         pca_explained_variance = pca.explained_variance_ratio_
-        self.ratio = {'MODE_{}'.format(m + 1):'{:.2f}'.format(float(pca_explained_variance[m])) for m in range(len(pca_explained_variance))}
+        self.ratio = {'MODE_{}'.format(m + 1):'{:.2f}'.format(float(pca_explained_variance[m]))
+                      for m in range(len(pca_explained_variance))}
         datasets = dict()
         for i in range(len(subjectStore)):
             datasets.update({subjectStore[i]: i})
@@ -161,69 +163,82 @@ class SSM(object):
 
         if save:
             #### save scores to a csv file
+
+            print '\n\t   ______________\n'
+            print '\t   NOT IMPLEMENTED YET'
+            print '\n\t   ______________\n'
+
+            """
+            TODO
+
             import os
             import csv
-            print '\n\t   ______________\n'
-            fname = raw_input('\t   PLEASE NAME YOUR FILE: ')
-            output_dir = 'output/'
-            if not os.path.exists(output_dir):
-                os.makedirs(output_dir)
-            weights_file = output_dir+'%s.csv' % fname
-
-            if os.path.isfile(weights_file):
-                text_file = open(weights_file, "a")
-                text_file.close()
+            if self.fname == None:
+                print '\n\t   ______________\n'
+                self.fname = raw_input('\t   PLEASE NAME YOUR FILE: ')
             else:
-                weights_file = output_dir+'%s.csv' % fname
-                text_file = open(weights_file, "a")
-                text_file.write("Mesh")
-                text_file.close()
-                for i in range(len(mode_count)):
-                    f = open(weights_file)
-                    data = [item for item in csv.reader(f)]
-                    f.close()
-                    new_column = mode_count
-                    self.new_data = []
-                    for j, item in enumerate(data):
-                        try:
-                            item.append(new_column[i])
-                        except IndexError, e:
-                            item.append("placeholder")
-                        self.new_data.append(item)
-                    f = open(weights_file, 'w')
-                    csv.writer(f).writerows(self.new_data)
-                    f.close()
-            if not self.new_data:
-                pass
-            else:
-                self.new_data = []
-
-            saving = True
-            if saving:
-                text_file = open(weights_file, "a")
-                text_file.write("%s" % subject_name)
-                text_file.close()
+                output_dir = 'output/'
+                if not os.path.exists(output_dir):
+                    os.makedirs(output_dir)
+                weights_file = output_dir+'%s.csv' % self.fname
                 if os.path.isfile(weights_file):
+                    print '\n\t   ______________\n'
+                    print '\t   File already exists'
+                    print '\t   Appending...\n'
+                else:
+                    weights_file = output_dir+'%s.csv' % self.fname
+                    text_file = open(weights_file, "a")
+                    text_file.write("Mesh")
+                    text_file.close()
                     for i in range(len(mode_count)):
                         f = open(weights_file)
-
-                        data_1 = [item for item in csv.reader(f)]
+                        data = [item for item in csv.reader(f)]
                         f.close()
+                        new_column = mode_count
                         self.new_data = []
-                        for j, item in enumerate(data_1):
+                        for j, item in enumerate(data):
                             try:
-                                item.append("%.2f" % self.score_z[i])
+                                item.append(new_column[i])
                             except IndexError, e:
                                 item.append("placeholder")
                             self.new_data.append(item)
-                        # print self.new_data
                         f = open(weights_file, 'w')
                         csv.writer(f).writerows(self.new_data)
                         f.close()
+                if not self.new_data:
+                    pass
+                else:
+                    self.new_data = []
+                # saving = True
+                # if saving:
+                text_file = open(weights_file, "a")
+                text_file.write("%s" % subject_name)
+                text_file.close()
+
+                # if os.path.isfile(weights_file):
+                #     self.new_data = []
+                #     new = []
+                #     for i in range(len(mode_count)):
+                #         f = open(weights_file)
+                #         data = [item for item in csv.reader(f)]
+                #         f.close()
+                #
+                #         data = [data[-1]]
+                #         for j, item in enumerate(data):
+                #             try:
+                #                 item.append("%.2f" % self.score_z[i])
+                #             except IndexError, e:
+                #                 item.append("placeholder")
+                #             self.new_data.append(item)
+                #         f = open(weights_file, 'a')
+                #         csv.writer(f).writerows(self.new_data)
+                #         f.close()
                 print "\t   Scores saved to %s \n" % weights_file
                 print '\t   ______________'
+                
+            """
 
-        return (self.score_z, self.ratio)
+        return self.score_z, self.ratio
 
     def convert_scores(self, scores, SD, mean):
         for i in range(len(scores)):
