@@ -165,7 +165,8 @@ class SSM(object):
             #### save scores to a csv file
 
             print '\n\t   ______________\n'
-            print '\t   NOT IMPLEMENTED YET'
+            print '\t   SORRY!'
+            print '\t   SAVE NOT IMPLEMENTED YET'
             print '\n\t   ______________\n'
 
             """
