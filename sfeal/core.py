@@ -50,7 +50,7 @@ class SSM(object):
         self.components = self.pca.components_.T
         self.variance = self.pca.explained_variance_
         self.generate_mesh()
-        return (self.mesh, self.X)
+        return self.mesh, self.X
 
     def generate_mesh(self):
         self.mesh = morphic.Mesh()
@@ -251,13 +251,22 @@ class SSM(object):
 
         return self.z_score
 
-    def export_mesh(self, weights, ):
+    def export_to_cm(self, pmesh, weights):
         if not self.weights:
             pass
         else:
             self.weights = []
 
         self.weights = weights
+        self.pmesh = pmesh
+        self.pmesh.nodes['weights'].values[1:] = 0
+        self.pmesh.nodes['weights'].values[0] = 1 # average
+        for numMode in range(len(self.weights)):
+            self.pmesh.nodes['weights'].values[numMode+1] = self.weights[numMode]
+            self.pmesh.update_pca_nodes()
+
+
+
 
 
 
