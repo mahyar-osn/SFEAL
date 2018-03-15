@@ -14,7 +14,12 @@ class SSM(object):
         self.z_score = []
         self.ratio = {}
         self.fname = None
+        self.mean = None
+        self.score_z = None
+        self.SD = None
+
         self.new_data = []
+        self.weights = []
 
     def add_mesh(self, mesh, index = 0):
         mesh = morphic.Mesh(str(mesh))
@@ -135,9 +140,9 @@ class SSM(object):
         pca_explained_variance = pca.explained_variance_ratio_
         self.ratio = {'MODE_{}'.format(m + 1):'{:.2f}'.format(float(pca_explained_variance[m]))
                       for m in range(len(pca_explained_variance))}
-        datasets = dict()
+        dataset = dict()
         for i in range(len(subjectStore)):
-            datasets.update({subjectStore[i]: i})
+            dataset.update({subjectStore[i]: i})
 
         count = len(pca_variance)
         mode_count = []
@@ -147,26 +152,25 @@ class SSM(object):
         print '\t   Total modes of variation = %d' % count
         print '\t   Projecting Subject: %s' % subject_name
         mode_scores = []
-        for j in range(len(datasets)):
-            mean = numpy.average(X[j], axis=0)
+        for j in range(len(dataset)):
             subject = X[j] - pca_mean
             score = numpy.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
 
         self.SD = numpy.std(mode_scores, axis=0)
         self.mean = numpy.average(mode_scores, axis=0)
-        number = datasets[subject_name]
+        number = dataset[subject_name]
         subject_0 = X[number] - pca_mean
         self.score_0 = numpy.dot(subject_0, pca_components)
         self.score_0 = self.score_0[0][0:count]
         self.score_z = self.convert_scores(self.score_0, self.SD, self.mean)
 
         if save:
-            #### save scores to a csv file
+            # save scores to a csv file
 
             print '\n\t   ______________\n'
             print '\t   SORRY!'
-            print '\t   SAVE NOT IMPLEMENTED YET'
+            print '\t   SAVE OPTION NOT IMPLEMENTED YET'
             print '\n\t   ______________\n'
 
             """
@@ -238,7 +242,7 @@ class SSM(object):
                 print '\t   ______________'
                 
             """
-
+        print '\n\t=========================================\n'
         return self.score_z, self.ratio
 
     def convert_scores(self, scores, SD, mean):
@@ -246,3 +250,15 @@ class SSM(object):
             self.z_score.append((scores[i] - mean[i]) / SD[i])
 
         return self.z_score
+
+    def export_mesh(self, weights, ):
+        if not self.weights:
+            pass
+        else:
+            self.weights = []
+
+        self.weights = weights
+
+
+
+
