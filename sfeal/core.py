@@ -142,7 +142,7 @@ class SSM(object):
         pca_components = pca.components_.T
         pca_variance = pca.explained_variance_
         pca_explained_variance = pca.explained_variance_ratio_
-        self.ratio = {'MODE_{}'.format(m + 1): '{:.2f}'.format(float(pca_explained_variance[m]))
+        self.ratio = {'MODE_{} RATIO'.format(m + 1): '{:.2f}'.format(float(pca_explained_variance[m]))
                       for m in range(len(pca_explained_variance))}
         dataset = dict()
         for i in range(len(subjectStore)):
@@ -168,6 +168,9 @@ class SSM(object):
         self.score_0 = numpy.dot(subject_0, pca_components)
         self.score_0 = self.score_0[0][0:count]
         self.score_z = self.convert_scores(self.score_0, self.SD, self.mean)
+
+        self.score_z = {'MODE_{} SCORE'.format(m + 1): '{:.2f}'.format(float(self.score_z[m]))
+                      for m in range(len(self.score_z))}
 
         if save:
             # save scores to a csv file
@@ -458,3 +461,89 @@ class SSM(object):
             os.remove(save_output_file + '.csv')
 
         return None
+
+    def project_new_mesh(self, mesh_file_names, mesh_file):
+        if not self.new_data:
+            pass
+        else:
+            self.new_data = []
+        subject_name = mesh_file
+        print '\n\t=========================================\n'
+        print '\t   Please wait... \n'
+        totalSubjects = 0
+        subjectStore = []
+        x = []
+        y = []
+        for i in range(len(mesh_file_names)):
+            single_mesh = mesh_file_names[i]
+            mesh = morphic.Mesh(str(single_mesh))
+            totalSubjects += 1
+            subjectStore.append(mesh_file_names[i])
+            nodes = mesh.get_nodes()
+            size = len(nodes)
+            for node in mesh.nodes:
+                x.extend(node.values)
+                X1 = numpy.asarray(x)
+
+        X = X1.reshape((totalSubjects, size * 12))
+        print '\t   Total number of subjects in pca = %d' % totalSubjects
+        num_modes = totalSubjects - 1
+        from sklearn import decomposition
+        pca = decomposition.PCA(n_components=num_modes)
+        pca.fit(X)
+        pca_mean = pca.mean_
+        pca_mean = pca_mean.reshape((1, size * 12))
+        pca_components = pca.components_.T
+        pca_variance = pca.explained_variance_
+        pca_explained_variance = pca.explained_variance_ratio_
+        self.ratio = {'MODE_{} RATIO'.format(m + 1): '{:.2f}'.format(float(pca_explained_variance[m]))
+                      for m in range(len(pca_explained_variance))}
+        dataset = dict()
+        for i in range(len(subjectStore)):
+            dataset.update({subjectStore[i]: i})
+
+        count = len(pca_variance)
+        mode_count = []
+        for i in range(len(pca_variance)):
+            mode_count.append(i + 1)
+
+        print '\t   Total modes of variation = %d' % count
+        print '\t   Projecting Subject: %s' % subject_name
+
+        mode_scores = []
+        for j in range(len(dataset)):
+            subject = X[j] - pca_mean
+            score = numpy.dot(subject, pca_components)
+            mode_scores.append(score[0][0:count])
+
+        if self.SD is not None:
+            self.SD = None
+        if self.mean is not None:
+            self.mean = None
+
+        self.SD = numpy.std(mode_scores, axis=0)
+        self.mean = numpy.average(mode_scores, axis=0)
+
+        project_mesh_path = mesh_file
+        project_mesh = morphic.Mesh(project_mesh_path)
+        for node in project_mesh.nodes:
+            y.extend(node.values)
+            Y = numpy.asarray(y)
+
+        Y = Y.reshape((size * 12))
+        subject_0 = Y - pca_mean
+
+        if self.score_0 is not None:
+            self.score_0 = None
+        if self.score_z is not None:
+            self.score_z = None
+
+        self.score_0 = numpy.dot(subject_0, pca_components)
+        self.score_0 = self.score_0[0][0:count]
+        self.score_z = self.convert_scores(self.score_0, self.SD, self.mean)
+
+        self.score_z = {'MODE_{} SCORE'.format(m + 1): '{:.2f}'.format(float(self.score_z[m]))
+                      for m in range(len(self.score_z))}
+
+        print '\n\t=========================================\n'
+        return self.score_z, self.ratio
