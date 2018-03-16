@@ -1,0 +1,10 @@
+ gfx read node 'output/export_to_cm/default/Lung_reconstructed';
+ gfx read elem 'output/export_to_cm/default/Lung_reconstructed';
+ gfx cre egroup fissure;
+ gfx mod egroup fissure add 51..62,111..118;
+ gfx mod g_e 'Lung' general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;
+ gfx mod g_e 'Lung' lines coordinate coordinates select_on material green selected_material default_selected;
+ gfx mod g_e fissure general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;
+ gfx mod g_e fissure surfaces material tissue;
+ gfx edit scene;
+ gfx cre win;

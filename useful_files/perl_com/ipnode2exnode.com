@@ -1,0 +1,10 @@
+ set echo on;
+ fem def param;r;/hpc/mosa004/SFEAL/sfeal/../useful_files/perl_com/3d_fitting;
+ fem def coor;r;/hpc/mosa004/SFEAL/sfeal/../useful_files/perl_com/versions;
+ fem def base;r;/hpc/mosa004/SFEAL/sfeal/../useful_files/perl_com/BiCubic_Surface_Unit;
+ fem def node;r;output/export_to_cm/default/Lung_reconstructed;
+ fem def elem;r;/hpc/mosa004/SFEAL/sfeal/../useful_files/perl_com/templateLung;
+ fem export node;output/export_to_cm/default/Lung_reconstructed as Lung;
+ fem export elem;output/export_to_cm/default/Lung_reconstructed as Lung;
+ fem def node;w;output/export_to_cm/default/Lung_reconstructed;
+ fem quit;
