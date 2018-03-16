@@ -305,7 +305,7 @@ class SSM(object):
         path_to_com_file = os.path.join(os.path.dirname(__file__),
                                         input_folder, 'perl_com', 'ipnode2exnode.com')
         path_to_cmgui_file = os.path.join(os.path.dirname(__file__),
-                                        input_folder, 'perl_com', 'cmgui.com')
+                                          input_folder, 'perl_com', 'cmgui.com')
         ip2ex_perl = os.path.join(os.path.dirname(__file__),
                                   input_folder, 'perl_com', 'ipnode2exnode.pl')
         ip2ex_cm = os.path.join(os.path.dirname(__file__),
@@ -315,9 +315,9 @@ class SSM(object):
         param_file = os.path.join(os.path.dirname(__file__),
                                   input_folder, 'perl_com', '3d_fitting')
         versions_file = os.path.join(os.path.dirname(__file__),
-                                input_folder, 'perl_com', 'versions')
+                                     input_folder, 'perl_com', 'versions')
         base_file = os.path.join(os.path.dirname(__file__),
-                                  input_folder, 'perl_com', 'BiCubic_Surface_Unit')
+                                 input_folder, 'perl_com', 'BiCubic_Surface_Unit')
 
         if self.lung == 'Right':
             node_file = 'nodes_%s.csv' % self.lung
@@ -362,14 +362,20 @@ class SSM(object):
                     comfile.write(" gfx read elem {0}".format("'%s';\n" % path_to_ipnode_file))
                     comfile.write(" gfx cre egroup fissure;\n")
                     comfile.write(" gfx mod egroup fissure add 51..62;\n")
-                    comfile.write(" gfx mod g_e {0} general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n".format("'%s'" % self.lung))
-                    comfile.write(" gfx mod g_e {0} lines coordinate coordinates select_on material green selected_material default_selected;\n".format("'%s'" % self.lung))
-                    comfile.write(" gfx mod g_e fissure general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n")
+                    comfile.write(
+                        " gfx mod g_e {0} general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n".format(
+                            "'%s'" % self.lung))
+                    comfile.write(
+                        " gfx mod g_e {0} lines coordinate coordinates select_on material green selected_material default_selected;\n".format(
+                            "'%s'" % self.lung))
+                    comfile.write(
+                        " gfx mod g_e fissure general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n")
                     comfile.write(" gfx mod g_e fissure surfaces material tissue;\n")
                     comfile.write(" gfx edit scene;\n")
                     comfile.write(" gfx cre win;\n")
                 show_cmgui = 'show'
-                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui], shell=False)
+                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui],
+                                shell=False)
 
             else:
                 show_cmgui = 'no'
@@ -403,7 +409,7 @@ class SSM(object):
             os.remove(save_temp_file)
 
             py2ip_left_file = os.path.join(os.path.dirname(__file__),
-                                            input_folder, 'perl_com', 'py2ip_left.pl')
+                                           input_folder, 'perl_com', 'py2ip_left.pl')
             subprocess.call(["perl", py2ip_left_file, "%s.csv" % save_output_file,
                              "%s.ipnode" % path_to_ipnode_file])
 
@@ -425,14 +431,20 @@ class SSM(object):
                     comfile.write(" gfx read elem {0}".format("'%s';\n" % path_to_ipnode_file))
                     comfile.write(" gfx cre egroup fissure;\n")
                     comfile.write(" gfx mod egroup fissure add 111..118;\n")
-                    comfile.write(" gfx mod g_e {0} general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n".format("'%s'" % self.lung))
-                    comfile.write(" gfx mod g_e {0} lines coordinate coordinates select_on material green selected_material default_selected;\n".format("'%s'" % self.lung))
-                    comfile.write(" gfx mod g_e fissure general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n")
+                    comfile.write(
+                        " gfx mod g_e {0} general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n".format(
+                            "'%s'" % self.lung))
+                    comfile.write(
+                        " gfx mod g_e {0} lines coordinate coordinates select_on material green selected_material default_selected;\n".format(
+                            "'%s'" % self.lung))
+                    comfile.write(
+                        " gfx mod g_e fissure general clear circle_discretization 6 default_coordinate coordinates; element_discretization '12*12*12' native_discretization none;\n")
                     comfile.write(" gfx mod g_e fissure surfaces material tissue;\n")
                     comfile.write(" gfx edit scene;\n")
                     comfile.write(" gfx cre win;\n")
                 show_cmgui = 'show'
-                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui], shell=False)
+                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui],
+                                shell=False)
 
             else:
                 show_cmgui = 'no'
