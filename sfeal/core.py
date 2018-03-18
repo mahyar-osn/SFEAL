@@ -547,3 +547,6 @@ class SSM(object):
 
         print '\n\t=========================================\n'
         return self.score_z, self.ratio
+
+class MESH(object):
+
