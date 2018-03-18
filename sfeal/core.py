@@ -43,7 +43,7 @@ class SSM(object):
 
         self.X.append(x)
 
-    def pca_setup(self, num_modes=2):
+    def pca_train(self, num_modes=2):
         from sklearn import decomposition
         self.X = numpy.array(self.X)
         self.num_modes = num_modes
