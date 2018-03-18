@@ -555,27 +555,36 @@ class MESH(object):
         self.count = 0
         self.elements = None
 
-    def generate_mesh(self, file_path, file_name, lung='L'):
+    def generate_mesh(self, file_path, file_name, lung='L', save=True):
         import csv
-        import os
+        import os, sys
         from useful_files import elements
 
-        self.lung = 'left' if lung == 'L' else self.lung = 'right' if lung == 'R' else self.lung = 'lung'
+        if lung == 'L':
+            self.lung = 'left'
+        elif lung == 'R':
+            self.lung = 'right'
+        else:
+            self.lung = 'lung'
+
         mesh = morphic.Mesh()
         data = {}
 
         if self.elements is not None:
-            print "SHOULDN'T BE HERE!"
             self.elements = None
 
         self.elements = elements.Elements()
 
+        print '\n\t=========================================\n'
+        print '\t   GENERATING MESH... \n'
+        print '\t   PLEASE WAIT... \n'
+
         for filenum in os.listdir(file_path):
             filenum_path = os.path.join(file_path, filenum)
-            if filenum_path == file_path + '/' + file_name:
+            if filenum_path == file_path + '/' + file_name + '.ipnode':
                 if os.path.isfile(filenum_path):
                     self.count += 1
-                    with open(file_path, 'r') as csvfile:
+                    with open(filenum_path, 'r') as csvfile:
                         data[filenum] = csv.reader(csvfile, delimiter=' ', quotechar='|')
                         for rowx in data[filenum]:
                             rowy = data[filenum].next()
@@ -598,14 +607,20 @@ class MESH(object):
                                 elements = self.elements.set_elements(lung='lr')
                                 for ii, elem in enumerate(elements):
                                     mesh.add_element(ii + 1, ['H3', 'H3'], elem)
-                            mesh.generate()
 
+                        mesh.generate()
 
-
-
-
-
-
-
-
-
+                        if save:
+                            output = 'mesh'
+                            try:
+                                os.mkdir(output)
+                            except Exception:
+                                pass
+                            meshOutput = output + '/' + filenum_path
+                            if not os.path.exists(meshOutput):
+                                os.makedirs(meshOutput)
+                            mesh.save(meshOutput + '.mesh')
+                            os.rmdir(meshOutput)
+        print '\t   MESH %s SAVED IN \n' % file_name
+        print '\t   %s DIRECTORY \n' % meshOutput
+        print '\n\t=========================================\n'
