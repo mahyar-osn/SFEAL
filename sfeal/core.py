@@ -550,3 +550,62 @@ class SSM(object):
 
 class MESH(object):
 
+    def __init__(self):
+        self.lung = None
+        self.count = 0
+        self.elements = None
+
+    def generate_mesh(self, file_path, file_name, lung='L'):
+        import csv
+        import os
+        from useful_files import elements
+
+        self.lung = 'left' if lung == 'L' else self.lung = 'right' if lung == 'R' else self.lung = 'lung'
+        mesh = morphic.Mesh()
+        data = {}
+
+        if self.elements is not None:
+            print "SHOULDN'T BE HERE!"
+            self.elements = None
+
+        self.elements = elements.Elements()
+
+        for filenum in os.listdir(file_path):
+            filenum_path = os.path.join(file_path, filenum)
+            if filenum_path == file_path + '/' + file_name:
+                if os.path.isfile(filenum_path):
+                    self.count += 1
+                    with open(file_path, 'r') as csvfile:
+                        data[filenum] = csv.reader(csvfile, delimiter=' ', quotechar='|')
+                        for rowx in data[filenum]:
+                            rowy = data[filenum].next()
+                            rowz = data[filenum].next()
+                            node = [
+                                    [float(rowx[1]), float(rowx[2]), float(rowx[3]), float(rowx[4])],
+                                    [float(rowy[1]), float(rowy[2]), float(rowy[3]), float(rowy[4])],
+                                    [float(rowz[1]), float(rowz[2]), float(rowz[3]), float(rowz[4])]]
+                            nd = mesh.add_stdnode(str(rowx[0]), node)
+
+                            if self.lung == 'left':
+                                elements = self.elements.set_elements(lung='left')
+                                for ii, elem in enumerate(elements):
+                                    mesh.add_element(ii + 1, ['H3', 'H3'], elem)
+                            elif self.lung == 'right':
+                                elements = self.elements.set_elements(lung='right')
+                                for ii, elem in enumerate(elements):
+                                    mesh.add_element(ii + 1, ['H3', 'H3'], elem)
+                            else:
+                                elements = self.elements.set_elements(lung='lr')
+                                for ii, elem in enumerate(elements):
+                                    mesh.add_element(ii + 1, ['H3', 'H3'], elem)
+                            mesh.generate()
+
+
+
+
+
+
+
+
+
+
