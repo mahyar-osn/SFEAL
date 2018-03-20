@@ -553,6 +553,37 @@ class MESH (object):
         self.file_path = None
 
     def generate_mesh(self, file_path, file_name, lung='L', save=True):
+        """
+        generate_mesh creates morphic meshes from finite element meshes
+        built in cmiss. The input mesh which has already been converted
+        into a matrix format is transformed into a morphic mesh using the
+        node and element class within the useful_files module. These
+        classes can be modified accordingly for other mesh topologies.
+
+        Inputs:
+        ------------
+        file_path
+            path where the .ipnode file is stored.
+
+        file_name
+            name of the .ipnode file (do not include the .ipnode itself).
+
+        lung
+            Left = L | Right = R | Both = LR
+
+        save
+            A boolean variable to save the mesh.
+
+        Outputs:
+        ------------
+        None
+
+        :param file_path
+        :param file_name
+        :param lung
+        :param save
+        :return: None
+        """
         import csv
         import os, sys
         from useful_files import elements
@@ -612,24 +643,18 @@ class MESH (object):
                                 for ii, elem in enumerate (elements):
                                     self.mesh.add_element(ii + 1, ['H3', 'H3'], elem)
 
-                        self.mesh.generat()
+                        self.mesh.generate()
 
                         if save:
-                            self.output = 'mesh'
-                            try:
-                                os.mkdir(self.output)
-                            except Exception:
-                                pass
-                            meshOutput = self.output + '/' + filenum_path
-                            if not os.path.exists(meshOutput):
-                                os.makedirs(meshOutput)
-                            self.mesh.save(meshOutput + '.mesh')
-                            os.rmdir(meshOutput)
-                            print '\t   MESH %s SAVED IN \n' % file_name
+
+                            meshOutput = os.path.normpath(filenum_path + os.sep + os.pardir)
+                            self.mesh.save(meshOutput + '/' + file_name + '.mesh')
+
+                            print '\t   MESH "%s.mesh" SAVED IN \n' % file_name
                             print '\t   %s DIRECTORY \n' % meshOutput
         print '\n\t=========================================\n'
 
-    def align_mesh(self, reference_mesh, mesh, file_path, scaling=True, reflection='best'):
+    def align_mesh(self, reference_mesh, mesh, scaling=True, reflection='best'):
         """
         align_mesh is a method that perfomes a Procrustes analysis which
         determines a linear transformation (translation, reflection, orthogonal rotation
@@ -666,19 +691,20 @@ class MESH (object):
             a dict specifying the rotation, translation and scaling that
             maps X --> Y
 
-        mesh
+        self.mesh
             Aligned mesh
 
+        :param reference_mesh
+        :param mesh
+        :param scaling
+        :param reflection
+        :return: d, Z, tform, self.mesh
         """
 
         import os
 
         if self.mesh is not None:
             self.mesh = None
-        if self.file_path is not None:
-            self.file_path = None
-
-        self.file_path = file_path
 
         r = morphic.Mesh(reference_mesh)
         self.mesh = morphic.Mesh(mesh)
@@ -760,20 +786,23 @@ class MESH (object):
         if self.output is not None:
             self.output = None
 
-        self.output = 'aligned'
+        self.output = 'morphic_aligned'
 
         try:
             os.mkdir (self.output)
         except Exception:
             pass
-        meshOutput = os.path.normpath(self.file_path + os.sep + os.pardir)
-        print  meshOutput
-        # meshOutput = os.path.join(self.file_path, self.output)
-        # if not os.path.exists(meshOutput):
-        #     os.makedirs(meshOutput)
-        #
-        # print meshOutput
 
-        # self.mesh.save(os.path.join(meshOutput, mesh, '.mesh'))
+        meshOutput = os.path.normpath(mesh + os.sep + os.pardir)
+        meshOutput = os.path.normpath(meshOutput + os.sep + os.pardir)
+
+        meshOutput = os.path.join(meshOutput, self.output)
+
+        if not os.path.exists(meshOutput):
+            os.makedirs(meshOutput)
+
+        meshName = mesh.split('/')
+
+        self.mesh.save(os.path.join(meshOutput, str(meshName[-1])))
 
         return d, Z, tform, self.mesh
