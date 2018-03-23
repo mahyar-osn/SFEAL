@@ -552,7 +552,7 @@ class MESH (object):
         self.output = None
         self.file_path = None
 
-    def generate_mesh(self, file_path, file_name, lung='L', save=True):
+    def generate_mesh(self, file_path, lung='L', save=True):
         """
         generate_mesh creates morphic meshes from finite element meshes
         built in cmiss. The input mesh which has already been converted
@@ -588,17 +588,17 @@ class MESH (object):
         import os, sys
         from useful_files import elements
 
-        if lung == 'L':
-            self.lung = 'left'
-        elif lung == 'R':
-            self.lung = 'right'
-        else:
-            self.lung = 'lung'
+        if lung == 'L' or lung == 'l':
+            self.lung = 'Left'
+        elif lung == 'R' or lung == 'r':
+            self.lung = 'Right'
+        elif lung == 'LR' or lung == 'lr' or lung == 'RL' or lung == 'rl':
+            self.lung = 'Lung'
 
         if self.mesh is not None:
             self.mesh = None
 
-        self.mesh = morphic.Mesh()
+        self.mesh = morphic.Mesh ()
         data = {}
 
         if self.elements is not None:
@@ -617,40 +617,39 @@ class MESH (object):
 
         for filenum in os.listdir(self.file_path):
             filenum_path = os.path.join(self.file_path, filenum)
-            if filenum_path == self.file_path + '/' + file_name + '.ipnode':
+            if filenum_path == os.path.join(self.file_path, self.lung+'_fitted.ip2py'):
                 if os.path.isfile (filenum_path):
                     self.count += 1
-                    with open(filenum_path, 'r') as csvfile:
-                        data[filenum] = csv.reader(csvfile, delimiter=' ', quotechar='|')
+                    with open (filenum_path, 'r') as csvfile:
+                        data[filenum] = csv.reader (csvfile, delimiter=' ', quotechar='|')
                         for rowx in data[filenum]:
                             rowy = data[filenum].next ()
                             rowz = data[filenum].next ()
-                            node = [[float(rowx[1]), float(rowx[2]), float(rowx[3]), float(rowx[4])],
-                                    [float(rowy[1]), float(rowy[2]), float(rowy[3]), float(rowy[4])],
-                                    [float(rowz[1]), float(rowz[2]), float(rowz[3]), float(rowz[4])]]
-                            nd = self.mesh.add_stdnode(str(rowx[0]), node)
+                            node = [[float (rowx[1]), float (rowx[2]), float (rowx[3]), float (rowx[4])],
+                                    [float (rowy[1]), float (rowy[2]), float (rowy[3]), float (rowy[4])],
+                                    [float (rowz[1]), float (rowz[2]), float (rowz[3]), float (rowz[4])]]
+                            nd = self.mesh.add_stdnode (str (rowx[0]), node)
 
                             if self.lung == 'left':
-                                elements = self.elements.set_elements(lung='left')
-                                for ii, elem in enumerate(elements):
-                                    self.mesh.add_element(ii + 1, ['H3', 'H3'], elem)
-                            elif self.lung == 'right':
-                                elements = self.elements.set_elements(lung='right')
-                                for ii, elem in enumerate(elements):
-                                    self.mesh.add_element(ii + 1, ['H3', 'H3'], elem)
-                            else:
-                                elements = self.elements.set_elements(lung='lr')
+                                elements = self.elements.set_elements (lung='left')
                                 for ii, elem in enumerate (elements):
-                                    self.mesh.add_element(ii + 1, ['H3', 'H3'], elem)
+                                    self.mesh.add_element (ii + 1, ['H3', 'H3'], elem)
+                            elif self.lung == 'right':
+                                elements = self.elements.set_elements (lung='right')
+                                for ii, elem in enumerate (elements):
+                                    self.mesh.add_element (ii + 1, ['H3', 'H3'], elem)
+                            else:
+                                elements = self.elements.set_elements (lung='lr')
+                                for ii, elem in enumerate (elements):
+                                    self.mesh.add_element (ii + 1, ['H3', 'H3'], elem)
 
-                        self.mesh.generate()
+                        self.mesh.generate ()
 
                         if save:
-
                             meshOutput = os.path.normpath(filenum_path + os.sep + os.pardir)
-                            self.mesh.save(meshOutput + '/' + file_name + '.mesh')
+                            self.mesh.save(meshOutput + '/' + self.lung+'_fitted.mesh')
 
-                            print '\t   MESH "%s.mesh" SAVED IN \n' % file_name
+                            print '\t   MESH SAVED IN \n'
                             print '\t   %s DIRECTORY \n' % meshOutput
         print '\n\t=========================================\n'
 
@@ -706,40 +705,40 @@ class MESH (object):
         if self.mesh is not None:
             self.mesh = None
 
-        r = morphic.Mesh(reference_mesh)
-        self.mesh = morphic.Mesh(mesh)
+        r = morphic.Mesh (reference_mesh)
+        self.mesh = morphic.Mesh (mesh)
 
-        X = r.get_nodes()
-        Y = self.mesh.get_nodes()
+        X = r.get_nodes ()
+        Y = self.mesh.get_nodes ()
 
         n, m = X.shape
         ny, my = Y.shape
 
-        muX = X.mean(0)
-        muY = Y.mean(0)
+        muX = X.mean (0)
+        muY = Y.mean (0)
 
         X0 = X - muX
         Y0 = Y - muY
 
-        ssX = (X0 ** 2.).sum()
-        ssY = (Y0 ** 2.).sum()
+        ssX = (X0 ** 2.).sum ()
+        ssY = (Y0 ** 2.).sum ()
 
         # centred Frobenius norm
-        normX = numpy.sqrt(ssX)
-        normY = numpy.sqrt(ssY)
+        normX = numpy.sqrt (ssX)
+        normY = numpy.sqrt (ssY)
 
         # scale to equal (unit) norm
         X0 /= normX
         Y0 /= normY
 
         if my < m:
-            Y0 = numpy.concatenate((Y0, numpy.zeros(n, m - my)), 0)
+            Y0 = numpy.concatenate ((Y0, numpy.zeros (n, m - my)), 0)
 
         # optimum rotation matrix of Y
-        A = numpy.dot(X0.T, Y0)
-        U, s, Vt = numpy.linalg.svd(A, full_matrices=False)
+        A = numpy.dot (X0.T, Y0)
+        U, s, Vt = numpy.linalg.svd (A, full_matrices=False)
         V = Vt.T
-        T = numpy.dot(V, U.T)
+        T = numpy.dot (V, U.T)
 
         if reflection is not 'best':
 
@@ -750,9 +749,9 @@ class MESH (object):
             if reflection != have_reflection:
                 V[:, -1] *= -1
                 s[-1] *= -1
-                T = numpy.dot(V, U.T)
+                T = numpy.dot (V, U.T)
 
-        traceTA = s.sum()
+        traceTA = s.sum ()
 
         if scaling:
 
@@ -763,17 +762,17 @@ class MESH (object):
             d = 1 - traceTA ** 2
 
             # transformed coords
-            Z = normX * traceTA * numpy.dot(Y0, T) + muX
+            Z = normX * traceTA * numpy.dot (Y0, T) + muX
 
         else:
             b = 1
             d = 1 + ssY / ssX - 2 * traceTA * normY / normX
-            Z = normY * numpy.dot(Y0, T) + muX
+            Z = normY * numpy.dot (Y0, T) + muX
 
         # translation matrix
         if my < m:
             T = T[:my, :]
-        c = muX - b * numpy.dot(muY, T)
+        c = muX - b * numpy.dot (muY, T)
 
         # transformation values
         tform = {'rotation': T, 'scale': b, 'translation': c}
@@ -793,16 +792,72 @@ class MESH (object):
         except Exception:
             pass
 
-        meshOutput = os.path.normpath(mesh + os.sep + os.pardir)
-        meshOutput = os.path.normpath(meshOutput + os.sep + os.pardir)
+        meshOutput = os.path.normpath (mesh + os.sep + os.pardir)
+        meshOutput = os.path.normpath (meshOutput + os.sep + os.pardir)
 
-        meshOutput = os.path.join(meshOutput, self.output)
+        meshOutput = os.path.join (meshOutput, self.output)
 
-        if not os.path.exists(meshOutput):
-            os.makedirs(meshOutput)
+        if not os.path.exists (meshOutput):
+            os.makedirs (meshOutput)
 
-        meshName = mesh.split('/')
+        meshName = mesh.split ('/')
 
-        self.mesh.save(os.path.join(meshOutput, str(meshName[-1])))
+        self.mesh.save (os.path.join (meshOutput, str (meshName[-1])))
 
         return d, Z, tform, self.mesh
+
+    def convert_cm_mesh(self, file_path, lung='L'):
+        """
+
+        :param file_path:
+        :param file_name:
+        :param lung:
+        :return:
+        """
+        import os
+
+        if lung == 'L' or lung == 'l':
+            output_path, _ = self.process_cm_mesh('Left', file_path)
+        elif lung == 'R' or lung == 'r':
+            output_path, _ = self.process_cm_mesh('Right', file_path)
+        else:
+            output_path, output_lung_left = self.process_cm_mesh('Left', file_path)
+            output_path, output_lung_right = self.process_cm_mesh('Right', file_path)
+            final_file_path = os.path.normpath(output_lung_left + os.sep + os.pardir)
+            final_file = os.path.join(final_file_path, 'Lung_fitted.ip2py')
+
+            with open(output_lung_right) as f:
+                with open(final_file, "w") as f1:
+                    for line in f:
+                        f1.write(line)
+            with open(output_lung_left) as f:
+                with open(final_file, "a") as f1:
+                    for line in f:
+                        f1.write(line)
+        return output_path
+
+    def process_cm_mesh(self, lung, file_path):
+        """
+
+        :param lung:
+        :return:
+        """
+        import os
+        import subprocess
+
+        if self.lung is not None:
+            self.lung = None
+        self.lung = lung
+
+        input_folder = '../useful_files'
+        output_folder = 'morphic_original'
+        output_path = os.path.join(file_path, output_folder)
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+
+        perl_file = os.path.join(os.path.dirname(__file__), input_folder, 'perl_com', 'ip2py_%s.pl' % self.lung)
+        input_lung = os.path.join(file_path, self.lung + '_fitted.ipnode')
+        output_lung = os.path.join(output_path, self.lung + '_fitted.ip2py')
+        subprocess.call(["perl", perl_file, input_lung, output_lung])
+
+        return output_path, output_lung
