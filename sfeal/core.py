@@ -273,15 +273,15 @@ class SSM (object):
         elif lung == 'L':
             self.lung = 'Left'
         else:
-            raise Exception ("'lung' argument can ONLY be L OR R!")
+            raise Exception("'lung' argument can ONLY be L OR R!")
 
         self.weights = weights
         self.pmesh = pmesh
         self.pmesh.nodes['weights'].values[1:] = 0  # reset weights to zero
         self.pmesh.nodes['weights'].values[0] = 1  # adding average
-        for numMode in range (len (self.weights)):
+        for numMode in range(len(self.weights)):
             self.pmesh.nodes['weights'].values[numMode + 1] = self.weights[numMode]
-            self.pmesh.update_pca_nodes ()
+            self.pmesh.update_pca_nodes()
 
         # saving
         import os
@@ -598,7 +598,7 @@ class MESH (object):
         if self.mesh is not None:
             self.mesh = None
 
-        self.mesh = morphic.Mesh ()
+        self.mesh = morphic.Mesh()
         data = {}
 
         if self.elements is not None:
@@ -630,11 +630,11 @@ class MESH (object):
                                     [float (rowz[1]), float (rowz[2]), float (rowz[3]), float (rowz[4])]]
                             nd = self.mesh.add_stdnode (str (rowx[0]), node)
 
-                            if self.lung == 'left':
+                            if self.lung == 'Left':
                                 elements = self.elements.set_elements (lung='left')
                                 for ii, elem in enumerate (elements):
                                     self.mesh.add_element (ii + 1, ['H3', 'H3'], elem)
-                            elif self.lung == 'right':
+                            elif self.lung == 'Right':
                                 elements = self.elements.set_elements (lung='right')
                                 for ii, elem in enumerate (elements):
                                     self.mesh.add_element (ii + 1, ['H3', 'H3'], elem)
@@ -643,7 +643,7 @@ class MESH (object):
                                 for ii, elem in enumerate (elements):
                                     self.mesh.add_element (ii + 1, ['H3', 'H3'], elem)
 
-                        self.mesh.generate ()
+                        self.mesh.generate()
 
                         if save:
                             meshOutput = os.path.normpath(filenum_path + os.sep + os.pardir)
@@ -701,6 +701,11 @@ class MESH (object):
         """
 
         import os
+
+        print '\n\t=========================================\n'
+        print '\t   ALIGNING MESH... \n'
+        print '\t   PLEASE WAIT... \n'
+
 
         if self.mesh is not None:
             self.mesh = None
@@ -787,11 +792,6 @@ class MESH (object):
 
         self.output = 'morphic_aligned'
 
-        try:
-            os.mkdir (self.output)
-        except Exception:
-            pass
-
         meshOutput = os.path.normpath (mesh + os.sep + os.pardir)
         meshOutput = os.path.normpath (meshOutput + os.sep + os.pardir)
 
@@ -803,6 +803,11 @@ class MESH (object):
         meshName = mesh.split ('/')
 
         self.mesh.save (os.path.join (meshOutput, str (meshName[-1])))
+
+        print '\t   ALIGNED MESH SAVED IN \n'
+        print '\t   %s DIRECTORY \n' % meshOutput
+
+        print '\n\t=========================================\n'
 
         return d, Z, tform, self.mesh
 
