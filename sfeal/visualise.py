@@ -11,7 +11,7 @@ import numpy
 
 class FIGURE:
 
-    def __init__(self, figure='SFEAL', bgcolor=(1., 1., 1.), res=20):
+    def __init__(self, figure='SFEAL VIEW | VERSION 0.1.0', bgcolor=(1., 1., 1.), res=10):
         self.figure = mlab.figure(figure, bgcolor=bgcolor)
         self.plots = {}
         self.pmesh = None
@@ -179,7 +179,6 @@ class FIGURE:
         pmesh.nodes['weights'].values[1:] = 0  # Need to reset weights to zero
         pmesh.update_pca_nodes()
 
-        i = 0
         print "\n\t=========================================\n"
         print "\t   CHANGING WEIGHTS ALONG MODE %d AXIS\n" % mode
 
@@ -187,27 +186,24 @@ class FIGURE:
             pmesh.nodes['weights'].values[mode] = w
             print "\t   sigma = %.2f" %w
             pmesh.update_pca_nodes()
-
             if fissure:
                 lines = []
-                ### Left lung fissure
+                # Left lung fissure
                 line_index = [3]
                 lines = pmesh.append_lines(lines, [2, 7, 12, 16, 31, 34, 35], line_index)
                 line_index = [4]
                 lines2 = pmesh.append_lines(lines, [21, 24], line_index)
 
-                ### Righ lung fissure
+                # Righ lung fissure
                 line_index = [1]
                 lines3 = pmesh.append_lines(lines, [57, 58, 59, 60, 61, 62, 63, 64, 65, 66], line_index)
                 line_index = [2]
                 lines4 = pmesh.append_lines(lines, [47, 59, 64, 85, 91, 97], line_index)
 
                 self.plot_lines('lines', lines, size=3, color=(0 / 255.0, 0 / 255.0, 0 / 255.0), )
-
                 Xz, Tz = pmesh.get_surfaces(res=self.resolution)
                 self.plot_surfaces('ANIMATION', Xz, Tz, color=(244 / 255.0, 164 / 255.0, 96 / 255.0), opacity=1.0)
             else:
-
                 Xz, Tz = pmesh.get_surfaces(res=self.resolution)
                 self.plot_surfaces('ANIMATION', Xz, Tz, color=(244 / 255.0, 164 / 255.0, 96 / 255.0), opacity=1.0)
         print "\n\t=========================================\n"
