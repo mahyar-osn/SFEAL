@@ -109,7 +109,7 @@ class SSM(object):
             return x
         print ('Cannot reshape this node when generating pca mesh')
 
-    def calculate_score(self, mesh_file_names, mesh_file, save=False):
+    def calculate_score(self, mesh_list, mesh_file, save=False):
         if not self.new_data:
             pass
         else:
@@ -120,14 +120,16 @@ class SSM(object):
         totalSubjects = 0
         subjectStore = []
         x = []
-        for i in range(len(mesh_file_names)):
-            single_mesh = mesh_file_names[i]
-            mesh = morphic.Mesh(str(single_mesh))
+        for i in range(len(mesh_list)):
+            single_mesh = mesh_list[i]
+            # mesh = morphic.Mesh(str(single_mesh))
             totalSubjects += 1
-            subjectStore.append(mesh_file_names[i])
-            nodes = mesh.get_nodes()
+            subjectStore.append(mesh_list[i])
+            # nodes = mesh.get_nodes()
+            nodes = single_mesh.get_nodes()
             size = len(nodes)
-            for node in mesh.nodes:
+            # for node in mesh.nodes:
+            for node in single_mesh.nodes:
                 x.extend(node.values)
                 X1 = numpy.asarray(x)
 
@@ -160,6 +162,7 @@ class SSM(object):
 
         print ('\t   Total modes of variation = %d') % count
         print ('\t   Projecting Subject: %s') % subject_name
+
         mode_scores = []
         for j in range(len(dataset)):
             subject = X[j] - pca_mean
@@ -175,7 +178,7 @@ class SSM(object):
         self.score_1 = []
         self.score_1 = self.convert_scores(self.score_0, self.SD, self.mean)
         self.score_z = {}
-        self.score_z = {'MODE_{} SCORE'.format(m + 1): '{:.2f}'.format(float(self.score_1[m])) for m in
+        self.score_z = {'MODE {:3d} SCORE'.format(m + 1): '{:.2f}'.format(float(self.score_1[m])) for m in
                         range(len(self.score_1))}
 
         if save:
