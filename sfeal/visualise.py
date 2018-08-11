@@ -12,7 +12,7 @@ import numpy
 class FIGURE:
 
     def __init__(self, figure='SFEAL VIEW | VERSION 0.1.0', bgcolor=(1., 1., 1.), res=10):
-        self.figure = mlab.figure(figure, bgcolor=bgcolor)
+        self.figure = mlab.figure(figure, bgcolor=bgcolor, size=(500, 500))
         self.plots = {}
         self.pmesh = None
         self.mode = None
