@@ -143,8 +143,8 @@ class SSM(object):
         pca_variance = pca.explained_variance_
         pca_explained_variance = pca.explained_variance_ratio_
 
-        print 'PCA COMPONENETS'
-        print pca_components
+        # print 'PCA COMPONENETS'
+        # print pca_components
 
         self.ratio = {}
         self.ratio = {'MODE_{} RATIO'.format(m + 1): '{:.2f}'.format(float(pca_explained_variance[m])) for m in
