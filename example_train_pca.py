@@ -2,10 +2,8 @@ import os
 import numpy as np
 
 from sfeal import core as sf
-from sfeal import visualise as fig
 
 reload(sf)
-reload(fig)
 
 sfmesh = sf.MESH()
 sfmodel = sf.SSM()
