@@ -162,6 +162,9 @@ class SSM(object):
         total_subjects = len(self.dataset)
 
         size = len(morphic.Mesh(str(subject_name)).get_nodes())
+
+        if type(self.X) is not numpy.ndarray:
+            self.X = numpy.array(self.X)
         X = self.X.reshape((total_subjects, size * 12))
 
         pca = joblib.load('lung_pca_model.sfeal')
