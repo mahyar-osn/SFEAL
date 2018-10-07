@@ -115,7 +115,6 @@ class FIGURE:
             self.clear(label)
             self.plots[label] = mlab.points3d(Xl[:, 0], Xl[:, 1], Xl[:, 2], color=color, scale_factor=0)
             self.plots[label].mlab_source.dataset.lines = connections
-            # ~ self.plots[label].mlab_source.update()
             mlab.pipeline.surface(self.plots[label], color=color,
                                   representation='wireframe',
                                   line_width=size,
@@ -154,13 +153,13 @@ class FIGURE:
         if fissure:
             lines = []
 
-            ### Left lung fissure
+            # Left lung fissure
             line_index = [3]
             lines = pmesh.append_lines(lines, [2, 7, 12, 16, 31, 34, 35], line_index)
             line_index = [4]
             lines2 = pmesh.append_lines(lines, [21, 24], line_index)
 
-            ## Righ lung fissure
+            # Righ lung fissure
             line_index = [1]
             lines3 = pmesh.append_lines(lines, [57, 58, 59, 60, 61, 62, 63, 64, 65, 66], line_index)
             line_index = [2]
