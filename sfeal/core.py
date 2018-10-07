@@ -27,7 +27,7 @@ class SSM(object):
         self.dataset = dict()
         self.mesh_names = []
 
-    def add_mesh(self, m, index=0):
+    def add_mesh(self, m):
         mesh = morphic.Mesh(str(m))
         if self.input_mesh is None:
             self.input_mesh = mesh
@@ -61,7 +61,6 @@ class SSM(object):
             print pickle.dump(self.dataset, f)
 
     def pca_train(self, num_modes=2):
-        import pickle
         from sklearn import decomposition
         from sklearn.externals import joblib
 
