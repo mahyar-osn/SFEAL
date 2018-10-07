@@ -222,13 +222,13 @@ class FIGURE:
 
         if fissure:
             lines = []
-            ### Left lung fissure
+            # Left lung fissure
             line_index = [3]
             lines = mesh.append_lines(lines, [2, 7, 12, 16, 31, 34, 35], line_index)
             line_index = [4]
             lines2 = mesh.append_lines(lines, [21, 24], line_index)
 
-            ### Righ lung fissure
+            # Righ lung fissure
             line_index = [1]
             lines3 = mesh.append_lines(lines, [57, 58, 59, 60, 61, 62, 63, 64, 65, 66], line_index)
             line_index = [2]
