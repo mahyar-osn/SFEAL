@@ -814,7 +814,6 @@ class MESH(object):
         perl_file = os.path.join(os.path.dirname(__file__), input_folder, 'perl_com', 'ip2py_%s.pl' % self.lung)
         try:
             _inp = file_path + '/' + self.lung + '_fitted.ipnode'
-            # input_lung = os.path.join(file_path, self.lung + '_fitted.ipnode')
         except Exception:
             _inp = file_path + '/fitted' + self.lung + '.ipnode'
 
