@@ -42,12 +42,12 @@ class FIGURE:
 
         mlab.figure(self.figure.name)
 
-        if color == None:
+        if color is None:
             color = (1, 0, 0)
 
         mlab_obj = self.plots.get(label)
-        if mlab_obj == None:
-            if scalars == None:
+        if mlab_obj is None:
+            if scalars is None:
                 self.plots[label] = mlab.triangular_mesh(X[:, 0], X[:, 1], X[:, 2], T, color=color, opacity=opacity,
                                                          representation=rep)
             else:
