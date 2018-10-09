@@ -59,7 +59,7 @@ class FIGURE:
             roll = mlab.roll()
 
             if X.shape[0] == mlab_obj.mlab_source.x.shape[0]:
-                if scalars == None:
+                if scalars is None:
                     mlab_obj.mlab_source.set(x=X[:, 0], y=X[:, 1], z=X[:, 2])
                     mlab_obj.actor.property.color = color
                     mlab_obj.actor.property.opacity = opacity
@@ -68,7 +68,7 @@ class FIGURE:
 
             else:
                 self.clear(label)
-                if scalars == None:
+                if scalars is None:
                     self.plots[label] = mlab.triangular_mesh(X[:, 0], X[:, 1], X[:, 2], T, color=color, opacity=opacity,
                                                              representation=rep)
                 else:
@@ -97,13 +97,13 @@ class FIGURE:
 
         mlab.figure(self.figure.name)
 
-        if color == None:
+        if color is None:
             color = (1, 0, 0)
-        if size == None:
+        if size is None:
             size = 1
 
         mlab_obj = self.plots.get(label)
-        if mlab_obj == None:
+        if mlab_obj is None:
             self.plots[label] = mlab.points3d(Xl[:, 0], Xl[:, 1], Xl[:, 2], color=color, scale_factor=0)
             self.plots[label].mlab_source.dataset.lines = connections
             mlab.pipeline.surface(self.plots[label], color=(1, 1, 1),
