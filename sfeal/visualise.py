@@ -22,7 +22,7 @@ class FIGURE:
         self.resolution = res
 
     def clear(self, label=None):
-        if label == None:
+        if label is None:
             labels = self.plots.keys()
         else:
             labels = [label]
@@ -31,7 +31,7 @@ class FIGURE:
 
         for label in labels:
             mlab_obj = self.plots.get(label)
-            if mlab_obj != None:
+            if mlab_obj is not None:
                 if mlab_obj.name == 'Surface':
                     mlab_obj.parent.parent.parent.remove()
                 else:
