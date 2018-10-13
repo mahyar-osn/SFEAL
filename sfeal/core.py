@@ -19,6 +19,7 @@ class SSM(object):
         self.fname = None
         self.mean = None
         self.score_z = None
+        self.mah_distances = list()
         self.SD = None
         self.nodes = None
         self.new_data = list()
@@ -188,15 +189,17 @@ class SSM(object):
         print('\t   Projecting Subject: %s') % mesh_file
 
         mode_scores = list()
-        mah_distances = list()
+        if self.mah_distances:
+            self.mah_distances = list()
+
         for j in range(len(self.dataset)):
             subject = X[j] - pca_mean
             score = np.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
 
             # mahalanobis distance:
-            mahalanobis_distance = self.mahalanobis(score,pca_variance)
-            mah_distances.append(mahalanobis_distance)
+            mahalanobis_distance = self.mahalanobis(score, pca_variance)
+            self.mah_distances.append(mahalanobis_distance)
 
         self.SD = np.std(mode_scores, axis=0)
         self.mean = np.average(mode_scores, axis=0)
@@ -224,6 +227,10 @@ class SSM(object):
     def get_score(self, mesh_file):
         self._get_computations(mesh_file)
         return self.score_z, self.ratio
+
+    def get_mahalanobis(self, mesh_file):
+        self._get_computations(mesh_file)
+        return self.mah_distances
 
     def convert_scores(self, scores, SD, mean):
         self.score_1 = list()
