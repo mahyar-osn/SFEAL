@@ -210,12 +210,19 @@ class SSM(object):
                         for m in
                         range(len(self.score_1))
                         }
-
         print ('\n\t=========================================\n')
-        return self.score_z, self.ratio
+        return None
 
     def calculate_score(self, mesh_file):
-        
+        import warnings
+        warnings.warn("'calculate_score()' is depreciating in new versions of SFEAL. For future please use "
+                      "'get_score()' method.", DeprecationWarning)
+
+        self._get_computations(mesh_file)
+        return self.score_z, self.ratio
+
+    def get_score(self, mesh_file):
+        self._get_computations(mesh_file)
         return self.score_z, self.ratio
 
     def convert_scores(self, scores, SD, mean):
