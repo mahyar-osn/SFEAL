@@ -6,26 +6,26 @@ class SSM(object):
 
     def __init__(self):
 
-        self.X = []
+        self.X = list()
         self.input_mesh = None
         self.groups = None
         self.mesh = None
         self.pcamesh = None
         self.pmesh = None
         self.score_0 = None
-        self.score_1 = []
-        self.z_score = {}
-        self.ratio = {}
+        self.score_1 = list()
+        self.z_score = dict()
+        self.ratio = dict()
         self.fname = None
         self.mean = None
         self.score_z = None
         self.SD = None
         self.nodes = None
-        self.new_data = []
-        self.weights = []
+        self.new_data = list()
+        self.weights = list()
         self.lung = None
         self.dataset = dict()
-        self.mesh_names = []
+        self.mesh_names = list()
 
     def add_mesh(self, m):
         mesh = morphic.Mesh(str(m))
@@ -33,7 +33,7 @@ class SSM(object):
             self.input_mesh = mesh
         if isinstance(mesh, str):
             mesh = morphic.Mesh(mesh)
-        x = []
+        x = list()
         if self.groups is None:
             for node in mesh.nodes:
                 if not isinstance(node, morphic.mesher.DepNode):
@@ -146,7 +146,7 @@ class SSM(object):
         if not self.new_data:
             pass
         else:
-            self.new_data = []
+            self.new_data = list()
 
         def search(values, searchFor):
             for k in values:
@@ -180,14 +180,15 @@ class SSM(object):
         }
 
         count = len(pca_variance)
-        mode_count = []
+        mode_count = list()
         for i in range(len(pca_variance)):
             mode_count.append(i + 1)
 
         print('\t   Total modes of variation = %d') % count
         print('\t   Projecting Subject: %s') % mesh_file
 
-        mode_scores = []
+        mode_scores = list()
+        mah_distances = list()
         for j in range(len(self.dataset)):
             subject = X[j] - pca_mean
             score = np.dot(subject, pca_components)
@@ -214,7 +215,7 @@ class SSM(object):
         return self.score_z, self.ratio
 
     def convert_scores(self, scores, SD, mean):
-        self.score_1 = []
+        self.score_1 = list()
         for i in range(len(scores)):
             self.score_1.append((scores[i] - mean[i]) / SD[i])
 
@@ -224,7 +225,7 @@ class SSM(object):
         if not self.weights:
             pass
         else:
-            self.weights = []
+            self.weights = list()
 
         if lung == 'R':
             self.lung = 'Right'
@@ -412,14 +413,14 @@ class SSM(object):
         if not self.new_data:
             pass
         else:
-            self.new_data = []
+            self.new_data = list()
         subject_name = mesh_file
         print ('\n\t=========================================\n')
         print ('\t   Please wait... \n')
         total_subjects = 0
-        subject_store = []
-        x = []
-        y = []
+        subject_store = list()
+        x = list()
+        y = list()
         for i in range(len(mesh_file_names)):
             single_mesh = mesh_file_names[i]
             mesh = morphic.Mesh(str(single_mesh))
@@ -451,14 +452,14 @@ class SSM(object):
             dataset.update({subject_store[i]: i})
 
         count = len(pca_variance)
-        mode_count = []
+        mode_count = list()
         for i in range(len(pca_variance)):
             mode_count.append(i + 1)
 
         print ('\t   Total modes of variation = %d') % count
         print ('\t   Projecting Subject: %s') % subject_name
 
-        mode_scores = []
+        mode_scores = list()
         for j in range(len(dataset)):
             subject = X[j] - pca_mean
             score = np.dot(subject, pca_components)
@@ -488,7 +489,7 @@ class SSM(object):
 
         self.score_0 = np.dot(subject_0, pca_components)
         self.score_0 = self.score_0[0][0:count]
-        self.score_1 = []
+        self.score_1 = list()
         self.score_1 = self.convert_scores(self.score_0, self.SD, self.mean)
         self.score_z = {}
         self.score_z = {'MODE_{} SCORE'.format(m + 1): '{:.2f}'.format(float(self.score_1[m])) for m in
