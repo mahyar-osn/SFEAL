@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import morphic
 
 
@@ -64,7 +64,7 @@ class SSM(object):
         from sklearn import decomposition
         from sklearn.externals import joblib
 
-        self.X = numpy.array(self.X)
+        self.X = np.array(self.X)
         self.num_modes = num_modes
         self.pca = decomposition.PCA(n_components=num_modes)
         self.pca.fit(self.X)
@@ -78,12 +78,12 @@ class SSM(object):
 
     def generate_mesh(self):
         self.mesh = morphic.Mesh()
-        weights = numpy.zeros(self.num_modes + 1)
+        weights = np.zeros(self.num_modes + 1)
         weights[0] = 1.0
         self.mesh.add_stdnode('weights', weights)
-        variance = numpy.zeros(self.num_modes + 1)
+        variance = np.zeros(self.num_modes + 1)
         variance[0] = 1.0
-        variance[1:] = numpy.sqrt(self.variance)
+        variance[1:] = np.sqrt(self.variance)
         self.mesh.add_stdnode('variance', variance)
         idx = 0
         if self.groups is None:
@@ -128,19 +128,19 @@ class SSM(object):
         nsize = node.values.size
         if len(node.shape) == 1:
             pca_node_shape = (node.shape[0], 1, self.num_modes)
-            x = numpy.zeros((node.shape[0], 1, self.num_modes + 1))
+            x = np.zeros((node.shape[0], 1, self.num_modes + 1))
             x[:, 0, 0] = self.mean[idx:idx + nsize].reshape(node.shape)
             x[:, :, 1:] = self.components[idx:idx + nsize, :].reshape(pca_node_shape)
             return x
         if len(node.shape) == 2:
             pca_node_shape = (node.shape[0], node.shape[1], self.num_modes)
-            x = numpy.zeros((node.shape[0], node.shape[1], self.num_modes + 1))
+            x = np.zeros((node.shape[0], node.shape[1], self.num_modes + 1))
             x[:, :, 0] = self.mean[idx:idx + nsize].reshape(node.shape)
             x[:, :, 1:] = self.components[idx:idx + nsize, :].reshape(pca_node_shape)
             return x
         print ('Cannot reshape this node when generating pca mesh')
 
-    def calculate_score(self, mesh_file):
+    def _get_computations(self, mesh_file):
         from sklearn.externals import joblib
 
         if not self.new_data:
@@ -162,8 +162,8 @@ class SSM(object):
 
         size = len(morphic.Mesh(str(subject_name)).get_nodes())
 
-        if type(self.X) is not numpy.ndarray:
-            self.X = numpy.array(self.X)
+        if type(self.X) is not np.ndarray:
+            self.X = np.array(self.X)
         X = self.X.reshape((total_subjects, size * 12))
 
         pca = joblib.load('lung_pca_model.sfeal')
@@ -190,14 +190,14 @@ class SSM(object):
         mode_scores = []
         for j in range(len(self.dataset)):
             subject = X[j] - pca_mean
-            score = numpy.dot(subject, pca_components)
+            score = np.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
 
-        self.SD = numpy.std(mode_scores, axis=0)
-        self.mean = numpy.average(mode_scores, axis=0)
+        self.SD = np.std(mode_scores, axis=0)
+        self.mean = np.average(mode_scores, axis=0)
         number = self.dataset[subject_name]
         subject_0 = X[number] - pca_mean
-        self.score_0 = numpy.dot(subject_0, pca_components)
+        self.score_0 = np.dot(subject_0, pca_components)
         self.score_0 = self.score_0[0][0:count]
         self.score_1 = self.convert_scores(self.score_0, self.SD, self.mean)
         self.score_z = {
@@ -207,6 +207,10 @@ class SSM(object):
                         }
 
         print ('\n\t=========================================\n')
+        return self.score_z, self.ratio
+
+    def calculate_score(self, mesh_file):
+        
         return self.score_z, self.ratio
 
     def convert_scores(self, scores, SD, mean):
@@ -282,7 +286,7 @@ class SSM(object):
                 node = self.pmesh.nodes[node_number]
                 node_values = node.values
                 with open(save_temp_file, 'a') as f:
-                    numpy.savetxt(f, node_values)
+                    np.savetxt(f, node_values)
 
             a = pd.read_csv(input_file)
             b = pd.read_csv(save_temp_file, delimiter=' ')
@@ -347,7 +351,7 @@ class SSM(object):
                 node = self.pmesh.nodes[node_number]
                 node_values = node.values
                 with open(save_temp_file, 'a') as f:
-                    numpy.savetxt(f, node_values)
+                    np.savetxt(f, node_values)
 
             a = pd.read_csv(input_file)
             b = pd.read_csv(save_temp_file, delimiter=' ')
@@ -425,7 +429,7 @@ class SSM(object):
             size = len(nodes)
             for node in mesh.nodes:
                 x.extend(node.values)
-                X1 = numpy.asarray(x)
+                X1 = np.asarray(x)
 
         X = X1.reshape((total_subjects, size * 12))
         print ('\t   Total number of subjects in pca = %d') % total_subjects
@@ -457,7 +461,7 @@ class SSM(object):
         mode_scores = []
         for j in range(len(dataset)):
             subject = X[j] - pca_mean
-            score = numpy.dot(subject, pca_components)
+            score = np.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
 
         if self.SD is not None:
@@ -465,14 +469,14 @@ class SSM(object):
         if self.mean is not None:
             self.mean = None
 
-        self.SD = numpy.std(mode_scores, axis=0)
-        self.mean = numpy.average(mode_scores, axis=0)
+        self.SD = np.std(mode_scores, axis=0)
+        self.mean = np.average(mode_scores, axis=0)
 
         project_mesh_path = mesh_file
         project_mesh = morphic.Mesh(project_mesh_path)
         for node in project_mesh.nodes:
             y.extend(node.values)
-            Y = numpy.asarray(y)
+            Y = np.asarray(y)
 
         Y = Y.reshape((size * 12))
         subject_0 = Y - pca_mean
@@ -482,7 +486,7 @@ class SSM(object):
         if self.score_z is not None:
             self.score_z = None
 
-        self.score_0 = numpy.dot(subject_0, pca_components)
+        self.score_0 = np.dot(subject_0, pca_components)
         self.score_0 = self.score_0[0][0:count]
         self.score_1 = []
         self.score_1 = self.convert_scores(self.score_0, self.SD, self.mean)
@@ -680,32 +684,32 @@ class MESH(object):
         ssY = (Y0 ** 2.).sum()
 
         """ centred Frobenius norm """
-        normX = numpy.sqrt(ssX)
-        normY = numpy.sqrt(ssY)
+        normX = np.sqrt(ssX)
+        normY = np.sqrt(ssY)
 
         """ scale to equal (unit) norm """
         X0 /= normX
         Y0 /= normY
 
         if my < m:
-            Y0 = numpy.concatenate((Y0, numpy.zeros(n, m - my)), 0)
+            Y0 = np.concatenate((Y0, np.zeros(n, m - my)), 0)
 
         """ optimum rotation matrix of Y """
-        A = numpy.dot(X0.T, Y0)
-        U, s, Vt = numpy.linalg.svd(A, full_matrices=False)
+        A = np.dot(X0.T, Y0)
+        U, s, Vt = np.linalg.svd(A, full_matrices=False)
         V = Vt.T
-        T = numpy.dot(V, U.T)
+        T = np.dot(V, U.T)
 
         if reflection is not 'best':
 
             """ if the current solution use a reflection? """
-            have_reflection = numpy.linalg.det(T) < 0
+            have_reflection = np.linalg.det(T) < 0
 
             """ if that's not what was specified, force another reflection """
             if reflection != have_reflection:
                 V[:, -1] *= -1
                 s[-1] *= -1
-                T = numpy.dot(V, U.T)
+                T = np.dot(V, U.T)
 
         traceTA = s.sum()
 
@@ -718,17 +722,17 @@ class MESH(object):
             d = 1 - traceTA ** 2
 
             """ transformed coords """
-            Z = normX * traceTA * numpy.dot(Y0, T) + muX
+            Z = normX * traceTA * np.dot(Y0, T) + muX
 
         else:
             b = 1
             d = 1 + ssY / ssX - 2 * traceTA * normY / normX
-            Z = normY * numpy.dot(Y0, T) + muX
+            Z = normY * np.dot(Y0, T) + muX
 
         """ translation matrix """
         if my < m:
             T = T[:my, :]
-        c = muX - b * numpy.dot(muY, T)
+        c = muX - b * np.dot(muY, T)
 
         """ transformation values """
         tform = {'rotation': T, 'scale': b, 'translation': c}
