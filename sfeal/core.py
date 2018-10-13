@@ -194,6 +194,10 @@ class SSM(object):
             score = np.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
 
+            # mahalanobis distance:
+            mahalanobis_distance = self.mahalanobis(score,pca_variance)
+            mah_distances.append(mahalanobis_distance)
+
         self.SD = np.std(mode_scores, axis=0)
         self.mean = np.average(mode_scores, axis=0)
         number = self.dataset[subject_name]
