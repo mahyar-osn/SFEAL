@@ -111,7 +111,6 @@ class SSM(object):
 
         for element in self.input_mesh.elements:
             self.mesh.add_element(element.id, element.basis, element.node_ids)
-
         self.mesh.generate()
 
     def save_dataset(self, filename='mesh_dataset.data'):
@@ -224,6 +223,13 @@ class SSM(object):
         self._get_computations(mesh_file)
         return self.score_z, self.ratio
 
+    def mahalanobis(self, score, eigenvalues):
+        mah_calc = 0
+        for i in range(len(score)):
+            calc = (score[i] * score[i]) / eigenvalues[i]
+            mah_calc = mah_calc + calc
+        return np.sqrt(mah_calc)
+
     def get_score(self, mesh_file):
         self._get_computations(mesh_file)
         return self.score_z, self.ratio
@@ -236,7 +242,6 @@ class SSM(object):
         self.score_1 = list()
         for i in range(len(scores)):
             self.score_1.append((scores[i] - mean[i]) / SD[i])
-
         return self.score_1
 
     def export_to_cm(self, pmesh, weights, name='default', lung='l', show_mesh=False):
@@ -424,7 +429,6 @@ class SSM(object):
             print ("\n\t=========================================\n")
 
             os.remove(save_output_file + '.csv')
-
         return None
 
     def project_new_mesh(self, mesh_file_names, mesh_file):
@@ -843,5 +847,4 @@ class MESH(object):
         input_lung = _inp
         output_lung = os.path.join(output_path, self.lung + '_fitted.ip2py')
         subprocess.call(["perl", perl_file, input_lung, output_lung])
-
         return output_path, output_lung
