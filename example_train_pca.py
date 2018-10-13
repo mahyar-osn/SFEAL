@@ -109,16 +109,19 @@ def _get_score(sfeal_model, aligned_mesh_names):
     :return:
     """
     sf = sfeal_model
-    subject_names = aligned_mesh_names
-
+    subject_names = sorted(aligned_mesh_names)
+    m_distance = list()
     score_array = np.chararray((len(subject_names), sf.num_modes + 1), itemsize=25)
     for i in range(len(subject_names)):
-        score, ratio = sf.calculate_score(subject_names[i])
+        score, ratio = sf.get_score(subject_names[i])
+        mah_distance = sf.get_mahalanobis()
+        m_distance.append(mah_distance)
         score_array[i][0] = subject_names[i].split('/')[6]
         for j in range(sf.num_modes):
             score_array[i][j+1] = score['MODE   '+str(j+1)+' SCORE']
 
     np.savetxt('scores.csv', score_array, delimiter=',', fmt='%s')
+    return score_array, m_distance
 
 
 def main():
@@ -132,7 +135,7 @@ def main():
     pmesh, _ = sf.pca_train(num_modes=number_of_modes)
     sf.save_mesh_id()
 
-    _get_score(sf, aligned_mesh_names)
+    scores, mahalanobis_distance = _get_score(sf, aligned_mesh_names)
 
     return sf, pmesh
 
