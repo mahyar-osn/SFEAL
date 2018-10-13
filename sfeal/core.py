@@ -19,7 +19,7 @@ class SSM(object):
         self.fname = None
         self.mean = None
         self.score_z = None
-        self.mah_distances = list()
+        self.mah_distance = None
         self.SD = None
         self.nodes = None
         self.new_data = list()
@@ -155,13 +155,14 @@ class SSM(object):
             return None
 
         subject_name = search(self.dataset, mesh_file)
+        # else:
+        #     mah = True
+
         print('\n\t=========================================\n')
         print('\t   Please wait... \n')
 
+        size = self.X.shape[1] // 12
         total_subjects = len(self.dataset)
-
-        size = len(morphic.Mesh(str(subject_name)).get_nodes())
-
         if type(self.X) is not np.ndarray:
             self.X = np.array(self.X)
         X = self.X.reshape((total_subjects, size * 12))
@@ -188,23 +189,18 @@ class SSM(object):
         print('\t   Projecting Subject: %s') % mesh_file
 
         mode_scores = list()
-        if self.mah_distances:
-            self.mah_distances = list()
-
         for j in range(len(self.dataset)):
             subject = X[j] - pca_mean
             score = np.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
-
-            # mahalanobis distance:
-            mahalanobis_distance = self.mahalanobis(score, pca_variance)
-            self.mah_distances.append(mahalanobis_distance)
 
         self.SD = np.std(mode_scores, axis=0)
         self.mean = np.average(mode_scores, axis=0)
         number = self.dataset[subject_name]
         subject_0 = X[number] - pca_mean
         self.score_0 = np.dot(subject_0, pca_components)
+        mah_distances = self.mahalanobis(self.score_0, pca_variance)
+        self.mah_distance = np.mean(mah_distances)
         self.score_0 = self.score_0[0][0:count]
         self.score_1 = self.convert_scores(self.score_0, self.SD, self.mean)
         self.score_z = {
@@ -234,9 +230,8 @@ class SSM(object):
         self._get_computations(mesh_file)
         return self.score_z, self.ratio
 
-    def get_mahalanobis(self, mesh_file):
-        self._get_computations(mesh_file)
-        return self.mah_distances
+    def get_mahalanobis(self):
+        return self.mah_distance
 
     def convert_scores(self, scores, SD, mean):
         self.score_1 = list()
