@@ -75,6 +75,7 @@ class SSM(object):
         self.generate_mesh()
 
         joblib.dump(self.pca, 'lung_pca_model.sfeal')
+        joblib.dump(self.mesh, 'lung_pca.model')
         return self.mesh, self.X
 
     def generate_mesh(self):
