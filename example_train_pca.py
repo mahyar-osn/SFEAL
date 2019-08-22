@@ -168,7 +168,7 @@ def _read_file():
 
 def main():
     meshes, ref_mesh = _get_mesh()
-    # aligned_mesh_objs = _align(meshes, ref_mesh, config["scale"])
+    aligned_mesh_objs = _align(meshes, ref_mesh, config["scale"])
     number_of_subjects_in_pca = len(config["subjects for pca"])
 
     """ Create SFEAL and perform PCA """
@@ -193,6 +193,10 @@ def main():
         weight_list.append(subjects)
         for modes in sorted(projected_weights[subjects]):
             weight_list.append(projected_weights[subjects][modes])
+
+    a = np.asarray(weight_list, dtype=object)
+    b = a.reshape(30, 6)
+    np.savetxt('/people/mosa004/Desktop/ipf_weights.txt', b, fmt='%s')
 
     # _get_score(sf, pmesh, aligned_mesh_names)
 
@@ -264,8 +268,6 @@ def main():
     #         sf.export_to_cm(pmesh, weights, name=pfts['subject'], lung='R', show_mesh=False)
 
     # scores, mahalanobis_distance = _get_score(sf, aligned_mesh_names)
-
-    csv_file = '/people/mosa004/Desktop/projected_ipf.csv'
 
     return sf, pmesh
 
