@@ -1,5 +1,5 @@
 import numpy as np
-import morphic
+from sfeal.morphic import morphic as morphic
 
 
 class SSM(object):
@@ -27,6 +27,9 @@ class SSM(object):
         self.lung = None
         self.dataset = dict()
         self.mesh_names = list()
+
+    def get_number_of_modes(self):
+        return self.num_modes
 
     def add_mesh(self, m):
         mesh = morphic.Mesh(str(m))
@@ -59,7 +62,7 @@ class SSM(object):
 
         fname = 'mesh_id.pkl'
         with open(fname, 'wb') as f:
-            print pickle.dump(self.dataset, f)
+            print(pickle.dump(self.dataset, f))
 
     def pca_train(self, num_modes=2):
         from sklearn import decomposition
@@ -123,7 +126,7 @@ class SSM(object):
 
         fname = os.path.join(os.path.dirname(__file__), filename)
         with open(fname, 'wb') as f:
-            print pickle.dump(self.X, f)
+            print(pickle.dump(self.X, f))
 
     def get_pca_node_values(self, node, idx):
         nsize = node.values.size
@@ -139,7 +142,7 @@ class SSM(object):
             x[:, :, 0] = self.mean[idx:idx + nsize].reshape(node.shape)
             x[:, :, 1:] = self.components[idx:idx + nsize, :].reshape(pca_node_shape)
             return x
-        print ('Cannot reshape this node when generating pca mesh')
+        print('Cannot reshape this node when generating pca mesh')
 
     def _get_computations(self, mesh_file):
         from sklearn.externals import joblib
@@ -273,7 +276,7 @@ class SSM(object):
 
         self.nodes = nodes.Nodes()
 
-        output_dir = 'output/export_to_cm/%s' % name
+        output_dir = 'output/export_to_cm/%s/Insp' % name
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
@@ -281,10 +284,12 @@ class SSM(object):
 
         path_to_export_mesh = output_dir
         temp_file = '%s_reconstructed_temp.csv' % self.lung
-        output_file = '%s_reconstructed' % self.lung
+        # output_file = '%s_reconstructed' % self.lung
+        output_file = 'fitted%s' % self.lung
         save_temp_file = output_dir + '/%s' % temp_file
         save_output_file = output_dir + '/%s' % output_file
-        ipnode_file = '%s_reconstructed' % self.lung
+        # ipnode_file = '%s_reconstructed' % self.lung
+        ipnode_file = 'fitted%s' % self.lung
         path_to_ipnode_file = '%s/%s' % (output_dir, ipnode_file)
 
         path_to_com_file = os.path.join(os.path.dirname(__file__), input_folder, 'perl_com', 'ipnode2exnode.com')
@@ -324,8 +329,8 @@ class SSM(object):
                 comfile.write(" fem def base;r;{0}".format("%s;\n" % base_file))
                 comfile.write(" fem def node;r;{0}".format("%s;\n" % path_to_ipnode_file))
                 comfile.write(" fem def elem;r;{0}".format("%s;\n" % elem_file))
-                comfile.write(" fem export node;{0} as {1};\n".format("%s" % path_to_ipnode_file, self.lung))
-                comfile.write(" fem export elem;{0} as {1};\n".format("%s" % path_to_ipnode_file, self.lung))
+                comfile.write(" fem export node;{0} as fitted{1};\n".format("%s" % path_to_ipnode_file, self.lung))
+                comfile.write(" fem export elem;{0} as fitted{1};\n".format("%s" % path_to_ipnode_file, self.lung))
                 comfile.write(" fem def node;w;{0}".format("%s;\n" % path_to_ipnode_file))
                 comfile.write(" fem quit;\n")
 
@@ -352,7 +357,7 @@ class SSM(object):
 
             else:
                 show_cmgui = 'no'
-                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui], shell=True)
+                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui], shell=False)
 
             print ("\n\t=========================================\n")
             print ("\t   ALL MESH FILES EXPORTED TO:")
@@ -389,8 +394,8 @@ class SSM(object):
                 comfile.write(" fem def base;r;{0}".format("%s;\n" % base_file))
                 comfile.write(" fem def node;r;{0}".format("%s;\n" % path_to_ipnode_file))
                 comfile.write(" fem def elem;r;{0}".format("%s;\n" % elem_file))
-                comfile.write(" fem export node;{0} as {1};\n".format("%s" % path_to_ipnode_file, self.lung))
-                comfile.write(" fem export elem;{0} as {1};\n".format("%s" % path_to_ipnode_file, self.lung))
+                comfile.write(" fem export node;{0} as fitted{1};\n".format("%s" % path_to_ipnode_file, self.lung))
+                comfile.write(" fem export elem;{0} as fitted{1};\n".format("%s" % path_to_ipnode_file, self.lung))
                 comfile.write(" fem def node;w;{0}".format("%s;\n" % path_to_ipnode_file))
                 comfile.write(" fem quit;\n")
 
@@ -417,7 +422,7 @@ class SSM(object):
 
             else:
                 show_cmgui = 'no'
-                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui], shell=True)
+                subprocess.call(["perl", ip2ex_perl, "%s" % ip2ex_cm, "%s" % cmgui_file, "%s" % show_cmgui], shell=False)
 
             print ("\n\t=========================================\n")
             print ("\t   ALL MESH FILES EXPORTED TO:")
@@ -427,35 +432,20 @@ class SSM(object):
             os.remove(save_output_file + '.csv')
         return None
 
-    def project_new_mesh(self, mesh_file_names, mesh_file):
-        if not self.new_data:
-            pass
-        else:
-            self.new_data = list()
-        subject_name = mesh_file
-        print ('\n\t=========================================\n')
-        print ('\t   Please wait... \n')
-        total_subjects = 0
-        subject_store = list()
-        x = list()
-        y = list()
-        for i in range(len(mesh_file_names)):
-            single_mesh = mesh_file_names[i]
-            mesh = morphic.Mesh(str(single_mesh))
-            total_subjects += 1
-            subject_store.append(mesh_file_names[i])
-            nodes = mesh.get_nodes()
-            size = len(nodes)
-            for node in mesh.nodes:
-                x.extend(node.values)
-                X1 = np.asarray(x)
+    # def project_new_mesh(self, mesh_file_names, mesh_file):
+    def project_new_mesh(self, mesh_file):
+        from sklearn.externals import joblib
+        import pickle
 
-        X = X1.reshape((total_subjects, size * 12))
-        print ('\t   Total number of subjects in pca = %d') % total_subjects
-        num_modes = total_subjects - 1
-        from sklearn import decomposition
-        pca = decomposition.PCA(n_components=num_modes)
-        pca.fit(X)
+        print('\n\t=========================================\n')
+        print('\t   Please wait... \n')
+
+        size = self.X.shape[1] // 12
+        total_subjects = len(self.X)
+        if type(self.X) is not np.ndarray:
+            self.X = np.array(self.X)
+        X = self.X.reshape((total_subjects, size * 12))
+        pca = joblib.load('lung_pca_model.sfeal')
         pca_mean = pca.mean_
         pca_mean = pca_mean.reshape((1, size * 12))
         pca_components = pca.components_.T
@@ -465,9 +455,6 @@ class SSM(object):
         self.ratio = {}
         self.ratio = {'MODE_{} RATIO'.format(m + 1): '{:.2f}'.format(float(pca_explained_variance[m])) for m in
                       range(len(pca_explained_variance))}
-        dataset = dict()
-        for i in range(len(subject_store)):
-            dataset.update({subject_store[i]: i})
 
         count = len(pca_variance)
         mode_count = list()
@@ -475,10 +462,10 @@ class SSM(object):
             mode_count.append(i + 1)
 
         print ('\t   Total modes of variation = %d') % count
-        print ('\t   Projecting Subject: %s') % subject_name
+        print ('\t   Projecting Subject: %s') % mesh_file
 
         mode_scores = list()
-        for j in range(len(dataset)):
+        for j in range(len(self.X)):
             subject = X[j] - pca_mean
             score = np.dot(subject, pca_components)
             mode_scores.append(score[0][0:count])
@@ -493,6 +480,7 @@ class SSM(object):
 
         project_mesh_path = mesh_file
         project_mesh = morphic.Mesh(project_mesh_path)
+        y = list()
         for node in project_mesh.nodes:
             y.extend(node.values)
             Y = np.asarray(y)
@@ -801,7 +789,11 @@ class MESH(object):
             output_path, _ = self.process_cm_mesh('Right', file_path)
         else:
             output_path, output_lung_left = self.process_cm_mesh('Left', file_path)
+            if output_path is None:
+                return None
             output_path, output_lung_right = self.process_cm_mesh('Right', file_path)
+            if output_path is None:
+                return None
             final_file_path = os.path.normpath(output_lung_left + os.sep + os.pardir)
             final_file = os.path.join(final_file_path, 'Lung_fitted.ip2py')
 
@@ -837,8 +829,13 @@ class MESH(object):
         perl_file = os.path.join(os.path.dirname(__file__), input_folder, 'perl_com', 'ip2py_%s.pl' % self.lung)
         try:
             _inp = file_path + '/' + self.lung + '_fitted.ipnode'
-        except Exception:
-            _inp = file_path + '/fitted' + self.lung + '.ipnode'
+            # _inp = file_path + '/fitted' + self.lung + '.ipnode'
+        except IOError:
+            inp = file_path + '/fitted' + self.lung + '.ipnode'
+
+        if not os.path.exists(_inp):
+            print('Mesh for subject {} does not exist. Skipping...'.format(file_path))
+            return None, None
 
         input_lung = _inp
         output_lung = os.path.join(output_path, self.lung + '_fitted.ip2py')
