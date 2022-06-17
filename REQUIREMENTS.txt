@@ -5,7 +5,7 @@ joblib==0.9.4
 matplotlib==1.5.1
 mayavi==4.5.0
 MDP==3.5
-numpy==1.11.0
+numpy==1.21.0
 scikit-learn==0.18
 scipy==0.17.0
 tables==3.2.2
