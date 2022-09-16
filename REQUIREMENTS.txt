@@ -12,7 +12,7 @@ tables==3.2.2
 traitlets==4.3.1
 traits==4.5.0
 traitsui==4.5.1
-VTK==5.10.1
+VTK==9.0.1
 wcwidth==0.1.7
 wxPython==3.0.2.0
 wxPython-common==3.0.2.0
