@@ -1,7 +1,7 @@
 enum34==1.1.6
 future==0.15.2
 hashlib==20081119
-joblib==0.9.4
+joblib==1.2.0
 matplotlib==1.5.1
 mayavi==4.5.0
 MDP==3.5
